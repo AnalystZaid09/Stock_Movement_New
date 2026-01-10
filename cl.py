@@ -91,7 +91,7 @@ if all([qwtt_inventory_file, amazon_stock_file, flipkart_business_file,
         amazon_business_pivot = amazon_business_pivot[[
             "(Parent) ASIN", "Brand", "Brand Manager", "Product Name",
             "Vendor SKU Codes", "EasycomSKU", "Total Orders", "CP"
-        ]]
+        ]].drop_duplicates()
         
         amazon_business_pivot["CP"] = amazon_business_pivot["CP"].fillna(0)
         amazon_business_pivot["Total Orders"] = amazon_business_pivot["Total Orders"].fillna(0)
@@ -126,7 +126,7 @@ if all([qwtt_inventory_file, amazon_stock_file, flipkart_business_file,
         Flipkart_Business_Pivot = Flipkart_Business_Pivot[[
             "Product Id", "Brand", "Brand Manager", "Product Name",
             "Vendor SKU Codes", "EasycomSKU", "Final Sale Units", "CP", "FNS"
-        ]]
+        ]].drop_duplicates()
         
         Flipkart_Business_Pivot["CP As Per Qty"] = (
             Flipkart_Business_Pivot["CP"] * Flipkart_Business_Pivot["Final Sale Units"]
