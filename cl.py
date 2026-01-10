@@ -2,9 +2,9 @@ import streamlit as st
 import pandas as pd
 import io
 
-st.set_page_config(page_title="Inventory Analysis Dashboard", layout="wide")
+st.set_page_config(page_title="Stock Movement Analysis Dashboard", layout="wide")
 
-st.title("📊 Inventory Analysis Dashboard")
+st.title("📊 Stock Movement Analysis Dashboard")
 
 # File uploaders
 st.sidebar.header("Upload Files")
