@@ -74,6 +74,9 @@ if all([qwtt_inventory_file, amazon_stock_file, flipkart_business_file,
         Amazon_PM["Vendor SKU Codes"] = Amazon_PM["Vendor SKU Codes"].astype(str).str.strip()
         Amazon_PM["EasycomSKU"] = Amazon_PM["EasycomSKU"].astype(str).str.strip()
         
+        # Remove duplicates from Amazon PM to prevent expansion during merge
+        Amazon_PM = Amazon_PM.drop_duplicates(subset=['ASIN'])
+        
         amazon_business_pivot["(Parent) ASIN"] = (
             amazon_business_pivot["(Parent) ASIN"].astype(str).str.strip().str.upper()
         )
@@ -91,7 +94,17 @@ if all([qwtt_inventory_file, amazon_stock_file, flipkart_business_file,
         amazon_business_pivot = amazon_business_pivot[[
             "(Parent) ASIN", "Brand", "Brand Manager", "Product Name",
             "Vendor SKU Codes", "EasycomSKU", "Total Orders", "CP"
-        ]].drop_duplicates()
+        ]]
+        
+        # Clean "nan" strings and set actual NaNs for better sorting
+        amazon_business_pivot["EasycomSKU"] = amazon_business_pivot["EasycomSKU"].replace(["nan", ""], pd.NA)
+        
+        # Sort to prioritize rows with EasycomSKU and then drop duplicates by ASIN
+        # This keeps unmapped items but prefers the mapped version if duplicates exist
+        amazon_business_pivot = (
+            amazon_business_pivot.sort_values(by="EasycomSKU", na_position='last')
+            .drop_duplicates(subset=["(Parent) ASIN"])
+        )
         
         amazon_business_pivot["CP"] = amazon_business_pivot["CP"].fillna(0)
         amazon_business_pivot["Total Orders"] = amazon_business_pivot["Total Orders"].fillna(0)
@@ -113,7 +126,14 @@ if all([qwtt_inventory_file, amazon_stock_file, flipkart_business_file,
         
         # Process Flipkart PM
         Flipkart_PM.columns = Flipkart_PM.columns.str.strip()
+        Flipkart_PM["FNS"] = Flipkart_PM["FNS"].astype(str).str.strip().str.upper()
+        Flipkart_PM["EasycomSKU"] = Flipkart_PM["EasycomSKU"].astype(str).str.strip()
+        
+        # Remove duplicates from Flipkart PM
+        Flipkart_PM = Flipkart_PM.drop_duplicates(subset=['FNS'])
+        
         Flipkart_Business_Pivot.columns = Flipkart_Business_Pivot.columns.str.strip()
+        Flipkart_Business_Pivot["Product Id"] = Flipkart_Business_Pivot["Product Id"].astype(str).str.strip().str.upper()
         
         Flipkart_Business_Pivot = Flipkart_Business_Pivot.merge(
             Flipkart_PM[["FNS", "Brand", "Brand Manager", "Product Name",
@@ -126,7 +146,16 @@ if all([qwtt_inventory_file, amazon_stock_file, flipkart_business_file,
         Flipkart_Business_Pivot = Flipkart_Business_Pivot[[
             "Product Id", "Brand", "Brand Manager", "Product Name",
             "Vendor SKU Codes", "EasycomSKU", "Final Sale Units", "CP", "FNS"
-        ]].drop_duplicates()
+        ]]
+        
+        # Clean "nan" strings and set actual NaNs
+        Flipkart_Business_Pivot["EasycomSKU"] = Flipkart_Business_Pivot["EasycomSKU"].replace(["nan", ""], pd.NA)
+        
+        # Sort to prioritize rows with EasycomSKU and drop duplicates by Product Id
+        Flipkart_Business_Pivot = (
+            Flipkart_Business_Pivot.sort_values(by="EasycomSKU", na_position='last')
+            .drop_duplicates(subset=["Product Id"])
+        )
         
         Flipkart_Business_Pivot["CP As Per Qty"] = (
             Flipkart_Business_Pivot["CP"] * Flipkart_Business_Pivot["Final Sale Units"]
