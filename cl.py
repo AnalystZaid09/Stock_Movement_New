@@ -9,7 +9,7 @@ st.title("📊 Stock Movement Analysis Dashboard")
 # File uploaders
 st.sidebar.header("Upload Files")
 
-qwtt_inventory_file = st.sidebar.file_uploader("QWTT Inventory (Excel)", type=['xlsx'])
+qwtt_inventory_file = st.sidebar.file_uploader("QWTT Inventory (Excel/CSV)", type=['xlsx', 'csv'])
 amazon_stock_file = st.sidebar.file_uploader("Amazon Stock (CSV)", type=['csv'])
 flipkart_business_file = st.sidebar.file_uploader("Flipkart Business Report (Excel)", type=['xlsx'])
 amazon_business_file = st.sidebar.file_uploader("Amazon Business Report (Excel)", type=['xlsx'])
@@ -22,7 +22,10 @@ if all([qwtt_inventory_file, amazon_stock_file, flipkart_business_file,
     
     with st.spinner("Processing data..."):
         # Load data
-        Qwtt_Inventory = pd.read_excel(qwtt_inventory_file)
+        if qwtt_inventory_file.name.endswith('.csv'):
+            Qwtt_Inventory = pd.read_csv(qwtt_inventory_file)
+        else:
+            Qwtt_Inventory = pd.read_excel(qwtt_inventory_file)
         Amazon_Stock = pd.read_csv(amazon_stock_file)
         Flipkart_Business_Report = pd.read_excel(flipkart_business_file)
         Amazon_Business_Report = pd.read_excel(amazon_business_file)
@@ -374,7 +377,7 @@ else:
     st.info("👈 Please upload all required files from the sidebar to begin analysis.")
     st.markdown("""
     ### Required Files:
-    1. QWTT Inventory (Excel)
+    1. QWTT Inventory (Excel/CSV)
     2. Amazon Stock (CSV)
     3. Flipkart Business Report (Excel)
     4. Amazon Business Report (Excel)
